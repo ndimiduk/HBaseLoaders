@@ -18,7 +18,7 @@ This produces the assembled application jar in the `target` directory.
 Assuming you have `hbase` installed in your `PATH` and configured to
 point to your target cluster, run the application like this:
 
-    $ HBASE_CLASSPATH=`pwd`/target/WikistatsOnline-*.jar hbase \
+    $ HBASE_CLASSPATH=`pwd`/target/WikistatsOnline-<version>.jar hbase \
       com.hortonworks.examples.hbase.wikitraffic.WikistatsOnlineLoader
 
 Providing the loader with no arguments will print a short help
@@ -36,7 +36,7 @@ message. For operation, the loader accepts three positional arguments:
 A sample of the data is provided in the repository. Out of the box, an
 invocation might look like this:
 
-    $ HBASE_CLASSPATH=`pwd`/target/WikistatsOnline-*.jar hbase \
+    $ HBASE_CLASSPATH=`pwd`/target/WikistatsOnline-0.1.0-SNAPSHOT.jar hbase \
       -Dlog4j.configuration=file:./src/main/resources/log4j.properties \
       com.hortonworks.examples.hbase.wikitraffic.WikistatsOnlineLoader \
       -tall wikistats ./sampledata/pagecounts-20090430-230000.txt

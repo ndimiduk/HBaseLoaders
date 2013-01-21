@@ -1,15 +1,18 @@
 package com.hortonworks.examples.hbase.wikitraffic;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.mapreduce.IdentityTableReducer;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
@@ -37,29 +40,44 @@ public class WikistatsOnlineLoader extends Configured implements Tool {
     argsValid = argsValid && (TALL.equals(args[0]) || WIDE.equals(args[0]));
 
     if (!argsValid) {
-      System.err.printf("Usage: %s [generic options] (-tall | -wide) <target-table> <input-path>",
-        getClass().getSimpleName());
+      System.err.printf("Usage: %s [generic options] (%s | %s) <target-table> <input-path>",
+        TALL, WIDE, getClass().getSimpleName());
       System.err.println();
       ToolRunner.printGenericCommandUsage(System.err);
       return -1;
     }
 
-    String schemaType = args[0];
+    String schemaType  = args[0];
     String targetTable = args[1];
-    String inputPath = args[2];
+    String inputPath   = args[2];
 
+    // validate destination table
     HBaseAdmin admin = null;
     try {
       admin = new HBaseAdmin(getConf());
+      // verify table and column exist
       if (admin.tableExists(targetTable)) {
-        LOG.info(String.format("Using existing table '%s'", targetTable));
+        HColumnDescriptor[] cols =
+            admin.getTableDescriptor(Bytes.toBytes(targetTable)).getColumnFamilies();
+        boolean hasTargetColumn = false;
+        for (HColumnDescriptor desc : cols) {
+          if (Arrays.equals(WikistatsSchemaUtils.COLUMN_FAMILY_NAME, desc.getName()))
+            hasTargetColumn = true;
+        }
+        if (hasTargetColumn) {
+          LOG.info(String.format("Using existing table '%s'", targetTable));
+        } else {
+          LOG.error(String.format("Target table '%s' does not have required column family '%s'.",
+            targetTable, Bytes.toString(WikistatsSchemaUtils.COLUMN_FAMILY_NAME)));
+          return -1;
+        }
       } else {
         LOG.info(String.format("Table '%s' does not exist. Creating from default descriptor.",
             targetTable));
         admin.createTable(WikistatsSchemaUtils.createDefaultTableDesc(targetTable));
       }
     } catch (IOException e) {
-      LOG.error("Failed to create table. Aborting.", e);
+      LOG.error("Failed to verify target table. Aborting.", e);
       return -1;
     } finally {
       if (null != admin)
