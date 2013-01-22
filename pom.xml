@@ -64,6 +64,10 @@
       <id>apache release</id>
       <url>https://repository.apache.org/content/repositories/releases/</url>
     </repository>
+    <repository>
+      <id>clojars</id>
+      <url>https://clojars.org/repo/</url>
+    </repository>
   </repositories>
 
   <dependencies>
@@ -78,6 +82,11 @@
       <artifactId>hbase</artifactId>
       <version>0.94.3</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.clojars.ndimiduk</groupId>
+      <artifactId>reservoirsampler</artifactId>
+      <version>0.1.0</version>
     </dependency>
   </dependencies>
 </project>

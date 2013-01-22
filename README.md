@@ -1,11 +1,14 @@
-# Wikistats Online Loader
+# Wikistats Example Loaders
 
-WikistatsOnlineLoader is a [Hadoop MapReduce][0] application that
-demonstrates how to efficiently load data into [Apache HBase][1]. It
-uses the online API, issuing Put requests against the running cluster.
-The application is designed to operate against the
-[Wikipedia Page Traffic Statistics][2] dataset, a public dataset
-available on AWS.
+The project contains example [Hadoop MapReduce][0] applications for
+efficiently loading data into [Apache HBase][1]. The applications are
+designed to operate against the [Wikipedia Page Traffic Statistics][2]
+dataset, a public dataset available on AWS.
+
+`WikistatsOnlineLoader` uses the online API, issuing Put requests
+against the running cluster. `WikistatsHFileLoader` generates HFiles
+directly from MapReduce. It does so in a way that is entirely
+decoupled from a running HBase cluster.
 
 ## Usage
 
