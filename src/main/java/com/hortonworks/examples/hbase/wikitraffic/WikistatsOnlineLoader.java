@@ -10,10 +10,10 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.IdentityTableReducer;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -85,7 +85,7 @@ public class WikistatsOnlineLoader extends Configured implements Tool {
     }
 
     // initialize job
-    Job job  = new Job(getConf(), "Populate Wikistats Online, Wide schema.");
+    Job job  = new Job(getConf(), "Populate Wikistats table.");
     job.setJarByClass(getClass());
 
     // configure job input path
@@ -97,7 +97,7 @@ public class WikistatsOnlineLoader extends Configured implements Tool {
     job.setMapperClass(schemaType.equals(TALL)
         ? WikistatsSchemaUtils.TallWikistatsMapper.class
         : WikistatsSchemaUtils.WideWikistatsMapper.class);
-    job.setMapOutputKeyClass(BytesWritable.class);
+    job.setMapOutputKeyClass(ImmutableBytesWritable.class);
     job.setMapOutputValueClass(Put.class);
 
     // configure job reducer

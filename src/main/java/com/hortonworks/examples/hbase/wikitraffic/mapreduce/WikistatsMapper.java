@@ -8,7 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
@@ -21,7 +21,7 @@ import com.hortonworks.examples.hbase.wikitraffic.mapreduce.io.FilePathTextInput
  * {@code projectcode, pagename, pageviews, bytes}. Datetime is parsed from
  * the filename, provided in the key via {@link FilePathTextInputFormat}.
  */
-public abstract class WikistatsMapper extends Mapper<Text, Text, BytesWritable, Put> {
+public abstract class WikistatsMapper extends Mapper<Text, Text, ImmutableBytesWritable, Put> {
 
   private static final Log LOG = LogFactory.getLog(WikistatsOnlineLoader.class);
   private static final Pattern keyParser = Pattern.compile("^(.*):(\\d+)$");
@@ -81,7 +81,7 @@ public abstract class WikistatsMapper extends Mapper<Text, Text, BytesWritable, 
     }
 
     Put put = createPut(dt, projectCode, pageName, pageViews, bytes);
-    context.write(new BytesWritable(put.getRow()), put);
+    context.write(new ImmutableBytesWritable(put.getRow()), put);
   }
 
   /**
