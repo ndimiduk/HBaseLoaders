@@ -4,13 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.hortonworks.examples.hbase.wikitraffic</groupId>
-  <artifactId>WikistatsOnline</artifactId>
+  <groupId>hortonworks.utils</groupId>
+  <artifactId>HBaseLoaders</artifactId>
   <packaging>jar</packaging>
   <version>0.1.0-SNAPSHOT</version>
-  <name>WikistatsOnlineLoader</name>
-  <description>Online import of wikistats data.</description>
-  <url>http://example.com/FIXME</url>
+  <name>HBaseLoaders</name>
+  <description>Example applications for efficiently loading data into
+  Apache HBase.</description>
+  <url>https://github.com/ndimiduk/HBaseLoaders</url>
 
   <licenses>
     <license>
@@ -47,11 +48,6 @@
             <configuration>
               <descriptor>src/assemblies/hadoop-job-jar.xml</descriptor>
               <appendAssemblyId>false</appendAssemblyId>
-              <archive>
-                <manifest>
-                  <mainClass>com.hortonworks.examples.hbase.wikitraffic.WikistatsOnlineLoader</mainClass>
-                </manifest>
-              </archive>
             </configuration>
           </execution>
         </executions>
