@@ -41,7 +41,7 @@ public class WikistatsOnlineLoader extends Configured implements Tool {
 
     if (!argsValid) {
       System.err.printf("Usage: %s [generic options] (%s | %s) <target-table> <input-path>",
-        TALL, WIDE, getClass().getSimpleName());
+        getClass().getSimpleName(), TALL, WIDE);
       System.err.println();
       ToolRunner.printGenericCommandUsage(System.err);
       return -1;
