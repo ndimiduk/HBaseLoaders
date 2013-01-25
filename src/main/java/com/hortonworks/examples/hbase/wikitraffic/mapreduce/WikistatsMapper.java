@@ -36,7 +36,7 @@ public abstract class WikistatsMapper extends Mapper<Text, Text, ImmutableBytesW
     /*
      * Parse the date-time component from the key.
      * 
-     * Using the descrptions in `man date` as a reference, each file in the
+     * Using the descriptions in `man date` as a reference, each file in the
      * wikistats dataset is of the format "pagecounts-YYYYmmdd-HHMMss.gz". No
      * timezone information is provided in the documentation; assume GMT, so
      * no TZ manipulation will be performed.
