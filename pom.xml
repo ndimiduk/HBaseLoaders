@@ -53,6 +53,7 @@
           </execution>
         </executions>
       </plugin>
+      <!-- provide an hbase cluster with MapReduce for integration tests -->
       <plugin>
         <groupId>org.kiji.maven.plugins</groupId>
         <artifactId>hbase-maven-plugin</artifactId>
@@ -69,6 +70,7 @@
           <mapReduceEnabled>true</mapReduceEnabled>
         </configuration>
       </plugin>
+      <!-- run integration tests separately -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
@@ -81,6 +83,25 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <!-- run findbugs on verify instead of site -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>2.5.2</version>
+        <executions>
+          <execution>
+            <id>findbugs</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <onlyAnalyze>com.hortonworks.examples.hbase</onlyAnalyze>
+          <failOnError>true</failOnError>
+        </configuration>
       </plugin>
     </plugins>
   </build>
