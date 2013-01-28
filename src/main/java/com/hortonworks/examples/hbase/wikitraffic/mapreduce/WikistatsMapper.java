@@ -6,31 +6,59 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 import com.hortonworks.examples.hbase.wikitraffic.WikistatsOnlineLoader;
-import com.hortonworks.examples.hbase.wikitraffic.mapreduce.io.FilePathTextInputFormat;
 
 /**
  * Reads text lines from Wikistats and produces HBase {@code rowkey => Put}
  * pairs. Wikistats data comes in text lines as
  * {@code projectcode, pagename, pageviews, bytes}. Datetime is parsed from
- * the filename, provided in the key via {@link FilePathTextInputFormat}.
+ * the filename.
  */
-public abstract class WikistatsMapper extends Mapper<Text, Text, ImmutableBytesWritable, Put> {
+public abstract class WikistatsMapper
+extends Mapper<LongWritable, Text, ImmutableBytesWritable, Put> {
 
   private static final Log LOG = LogFactory.getLog(WikistatsOnlineLoader.class);
-  private static final Pattern keyParser = Pattern.compile("^(.*):(\\d+)$");
   // don't assume a file extension
   private static final Pattern fileNameParser =
-      Pattern.compile("^pagecounts-(\\d{8}-\\d{6})\\..*$");
+      Pattern.compile("^.*/pagecounts-(\\d{8}-\\d{6})\\..*$");
+  private static final String MAP_INPUT_FILE = "map.input.file";
+
+  private String inputFile = null;
 
   @Override
-  public void map(Text key, Text value, Context context)
+  protected void setup(Context context) {
+
+    // TODO: why doesn't configuration work for integration tests? bug?
+    this.inputFile = context.getConfiguration().get(MAP_INPUT_FILE, null);
+    if (null == inputFile) {
+      LOG.warn(
+        String.format("%s not set. Interrogating split file path manually.", MAP_INPUT_FILE));
+      InputSplit split = context.getInputSplit();
+      if (split instanceof FileSplit) {
+        this.inputFile = ((FileSplit) split).getPath().toString();
+      } else {
+        LOG.warn("Unable to determine input file path for this split."
+            + " Mapper will produce no records.");
+      }
+    }
+  }
+
+  // Just in case this Mapper instance is reused, avoid annoying bugs.
+  @Override
+  protected void cleanup(Context context) {
+    this.inputFile = null;
+  }
+
+  @Override
+  public void map(LongWritable key, Text value, Context context)
       throws IOException, InterruptedException {
 
     /*
@@ -41,20 +69,15 @@ public abstract class WikistatsMapper extends Mapper<Text, Text, ImmutableBytesW
      * timezone information is provided in the documentation; assume GMT, so
      * no TZ manipulation will be performed.
      */
-    String dt = null;
-    long position = -1;
-
-    Matcher m = keyParser.matcher(key.toString());
-    if (!m.matches()) {
-      LOG.warn(String.format("Failed to parse input key: %s", key.toString()));
+    if (null == this.inputFile) {
+      LOG.error("Map context does not provide 'map.input.file'. Aborting.");
       return;
     }
 
-    String fileName = new Path(m.group(1)).getName();
-    position = Long.parseLong(m.group(2));
-    m = fileNameParser.matcher(fileName);
+    String dt = null;
+    Matcher m = fileNameParser.matcher(this.inputFile);
     if (!m.matches()) {
-      LOG.warn(String.format("Failed to parse filename: %s", fileName));
+      LOG.warn(String.format("Failed to parse filename: %s", this.inputFile));
       return;
     }
     dt = m.group(1);
@@ -76,7 +99,7 @@ public abstract class WikistatsMapper extends Mapper<Text, Text, ImmutableBytesW
       bytes = Long.parseLong(splits[3]);
     } catch (IllegalArgumentException e) {
       LOG.warn(String.format("Failed to parse record in file %s, position %d: %s",
-        fileName, position, value.toString()));
+        this.inputFile, key.get(), value.toString()));
       return;
     }
 

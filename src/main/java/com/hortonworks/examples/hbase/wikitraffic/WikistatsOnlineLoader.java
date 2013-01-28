@@ -17,11 +17,11 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import com.hortonworks.examples.hbase.wikitraffic.hbase.WikistatsSchemaUtils;
-import com.hortonworks.examples.hbase.wikitraffic.mapreduce.io.FilePathTextInputFormat;
 
 /**
  * An example HBase application. Load the wikitraffic's wikistats dataset
@@ -93,7 +93,7 @@ public class WikistatsOnlineLoader extends Configured implements Tool {
     FileInputFormat.addInputPath(job, wikistats);
 
     // configure job mapper
-    job.setInputFormatClass(FilePathTextInputFormat.class);
+    job.setInputFormatClass(TextInputFormat.class);
     job.setMapperClass(schemaType.equals(TALL)
         ? WikistatsSchemaUtils.TallWikistatsMapper.class
         : WikistatsSchemaUtils.WideWikistatsMapper.class);

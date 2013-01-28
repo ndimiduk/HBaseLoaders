@@ -18,6 +18,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapred.Utils.OutputFileUtils.OutputFilesFilter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.partition.TotalOrderPartitioner;
 import org.apache.hadoop.util.Tool;
@@ -25,7 +26,6 @@ import org.apache.hadoop.util.ToolRunner;
 
 import com.hortonworks.examples.hbase.wikitraffic.hbase.WikistatsSchemaUtils;
 import com.hortonworks.examples.hbase.wikitraffic.mapreduce.NullValueMapper;
-import com.hortonworks.examples.hbase.wikitraffic.mapreduce.io.FilePathTextInputFormat;
 import com.manning.hip.ch4.sampler.ReservoirSamplerInputFormat;
 
 public class WikistatsHFileLoader extends Configured implements Tool {
@@ -39,8 +39,8 @@ public class WikistatsHFileLoader extends Configured implements Tool {
     Job job = new Job(getConf(), "Prepare raw data.");
     job.setJarByClass(getClass());
 
-    job.setInputFormatClass(FilePathTextInputFormat.class);
-    FilePathTextInputFormat.addInputPath(job, inputPath);
+    job.setInputFormatClass(TextInputFormat.class);
+    TextInputFormat.addInputPath(job, inputPath);
 
     job.setMapperClass(schemaType.equals(TALL)
       ? WikistatsSchemaUtils.TallWikistatsMapper.class
